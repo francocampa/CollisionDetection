@@ -1,2 +1,0 @@
-/usr/sbin/ar qc libglm.a CMakeFiles/glm.dir/detail/glm.cpp.o
-/usr/sbin/ranlib libglm.a
