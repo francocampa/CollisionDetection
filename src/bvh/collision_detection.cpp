@@ -44,6 +44,12 @@ namespace {
         const V normalA = glm::cross(EA[0], EA[1]);
         const V normalB = glm::cross(EB[0], EB[1]);
 
+        const auto degenerate = [&](const V& n, const std::array<V, 3>& E) -> bool {
+            return glm::dot(n, n) <= EPS * EPS * glm::dot(E[0], E[0]) * glm::dot(E[1], E[1]);
+        };
+        if (degenerate(normalA, EA) || degenerate(normalB, EB))
+            return false;
+
         const auto separated = [&](const V& axis) -> bool {
             const float len2 = glm::dot(axis, axis);
 
@@ -183,6 +189,9 @@ namespace {
         const auto& a_bbox = a_node.get_bbox();
         const auto& b_bbox = b_node.get_bbox();
         
+        if(!aabb_overlap(a_bbox, b_bbox))
+            return StepMetrics();
+
         if(a_leaf && b_leaf){
             if(s_draw_bvh){
                 DrawBoundingBox(bbox_to_BBox(a_bbox), GREEN);
@@ -190,9 +199,6 @@ namespace {
             }
             return narrow_phase_cd(a, a_node, b, b_node);
         }
-        
-        if(!aabb_overlap(a_node.get_bbox(), b_node.get_bbox()))
-            return StepMetrics();
         
         StepMetrics result{};
         
