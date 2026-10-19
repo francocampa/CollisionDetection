@@ -63,8 +63,9 @@ struct Dragging{
 };
 
 void draw_metrics(StepMetrics metrics){
+    DrawText(TextFormat("Objetos intersecando   : %d", metrics.object_collisions), 10, GetScreenHeight() - 90, 24, WHITE);
+    DrawText(TextFormat("Primitivas testeadas: %d", metrics.primitive_tests), 10, GetScreenHeight() - 60, 24, WHITE);
     DrawText(TextFormat("Primitivas intersecando: %d", metrics.primitive_collisions), 10, GetScreenHeight() - 30, 24, WHITE);
-    DrawText(TextFormat("Objetos intersecando   : %d", metrics.object_collisions), 10, GetScreenHeight() - 60, 24, WHITE);
 }
 
 void init_objects(auto& objects, const Shader& shader){
@@ -213,7 +214,7 @@ int main(void)
                             draw_bvh(obj.bvh);
                     }
                 }
-                StepMetrics metrics = step_simulation(objects, use_bvh);
+                StepMetrics metrics = step_simulation(objects, use_bvh, draw_all_bvh);
             EndMode3D();
             DrawFPS(10, 10);
             GUI_EVENT event = draw_gui(use_bvh, draw_all_bvh, render);
@@ -222,7 +223,7 @@ int main(void)
             draw_metrics(metrics);
         EndDrawing();
 
-        if (GetFrameTime() > 1.0f / 10.0f) {
+        if (GetFrameTime() > 1.0f / 3.0f) {
             use_bvh = true;
         }
     }

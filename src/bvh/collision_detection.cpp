@@ -4,6 +4,8 @@
 #include <stdbool.h>
 
 namespace {
+    static bool s_draw_bvh = false; 
+
     BoundingBox bbox_to_BBox(const BBox& bbox){
         Vector3 min(bbox.min.values[0],
                     bbox.min.values[1],
@@ -96,6 +98,7 @@ namespace {
 
     StepMetrics naive_mid_narrow_phase(const Object& a, const Object& b){
         size_t primitive_collisions = 0;
+        size_t primitive_tests = 0;
         bool object_collision = false;
         const Triangle* a_triangles = a.get_triangles();
         const Triangle* b_triangles = b.get_triangles();
@@ -104,6 +107,7 @@ namespace {
             const Triangle& a_t = a_triangles[r];
             for (size_t t = 0; t < b.get_triangle_count() ; t++) {
                 const Triangle& b_t = b_triangles[t];
+                primitive_tests++;
                 if (triangle_triangle_intersection(a_t, a.pos, b_t, b.pos)) {
                     primitive_collisions++;
                     draw_triangle(a_t, a.pos);
@@ -115,7 +119,7 @@ namespace {
             }
         }
 
-        return {primitive_collisions, object_collision};
+        return {primitive_collisions, object_collision, primitive_tests};
     }
 
     bool aabb_overlap(const BBox& a, const BBox& b){
@@ -138,7 +142,37 @@ namespace {
         return 2.0f * (dx * dy + dy * dz + dz * dx);
     }
 
-    StepMetrics narrow_phase_cd(const Object& a, const auto& a_index, const Object& b, const auto& b_index);
+    StepMetrics narrow_phase_cd(const Object& a, const auto& a_node, const Object& b, const auto& b_node){
+        size_t primitive_collisions = 0;
+        size_t primitive_tests = 0;
+        bool object_collision = false;
+        const Triangle* a_triangles = a.get_triangles();
+        const Triangle* b_triangles = b.get_triangles();
+
+        const size_t a_begin = a_node.index.first_id();
+        const size_t a_end = a_begin + a_node.index.prim_count();
+
+        const size_t b_begin = b_node.index.first_id();
+        const size_t b_end = b_begin + b_node.index.prim_count();
+
+        for (size_t i = a_begin; i < a_end; i++) {
+            const Triangle& a_t = a_triangles[a.bvh.prim_ids[i]];
+            for (size_t j = b_begin; j < b_end; j++) {
+                const Triangle& b_t = b_triangles[b.bvh.prim_ids[j]];
+                primitive_tests++;
+                if (triangle_triangle_intersection(a_t, a.pos, b_t, b.pos)) {
+                    primitive_collisions++;
+                    draw_triangle(a_t, a.pos);
+                    draw_triangle(b_t, b.pos);
+                    if (!object_collision){
+                        object_collision = true;
+                    }                    
+                }
+            }
+        }
+
+        return {primitive_collisions, object_collision, primitive_tests};
+    }
 
     StepMetrics mid_phase_cd(const Object& a, size_t a_index, const Object& b, size_t b_index){
         const auto& a_node = a.bvh.nodes[a_index];
@@ -150,8 +184,10 @@ namespace {
         const auto& b_bbox = b_node.get_bbox();
         
         if(a_leaf && b_leaf){
-            DrawBoundingBox(bbox_to_BBox(a_bbox), GREEN);
-            DrawBoundingBox(bbox_to_BBox(b_bbox), GREEN);
+            if(s_draw_bvh){
+                DrawBoundingBox(bbox_to_BBox(a_bbox), GREEN);
+                DrawBoundingBox(bbox_to_BBox(b_bbox), GREEN);
+            }
             return narrow_phase_cd(a, a_node, b, b_node);
         }
         
@@ -177,44 +213,6 @@ namespace {
         return result;
     }
 
-    StepMetrics visit_children_bvh(const Object& a, const auto& a_node, const Object& b, const auto& b_node, size_t b_index){
-        size_t child_index = a_node.index.first_id();
-        StepMetrics ml = mid_phase_cd(a, child_index, b, b_index);
-        StepMetrics mr = mid_phase_cd(a, child_index + 1, b, b_index);
-        ml.sum(mr);
-        return ml;
-    }
-
-    StepMetrics narrow_phase_cd(const Object& a, const auto& a_node, const Object& b, const auto& b_node){
-        size_t primitive_collisions = 0;
-        bool object_collision = false;
-        const Triangle* a_triangles = a.get_triangles();
-        const Triangle* b_triangles = b.get_triangles();
-
-        const size_t a_begin = a_node.index.first_id();
-        const size_t a_end = a_begin + a_node.index.prim_count();
-
-        const size_t b_begin = b_node.index.first_id();
-        const size_t b_end = b_begin + b_node.index.prim_count();
-
-        for (size_t i = a_begin; i < a_end; i++) {
-            const Triangle& a_t = a_triangles[a.bvh.prim_ids[i]];
-            for (size_t j = b_begin; j < b_end; j++) {
-                const Triangle& b_t = b_triangles[b.bvh.prim_ids[j]];
-                if (triangle_triangle_intersection(a_t, a.pos, b_t, b.pos)) {
-                    primitive_collisions++;
-                    draw_triangle(a_t, a.pos);
-                    draw_triangle(b_t, b.pos);
-                    if (!object_collision){
-                        object_collision = true;
-                    }                    
-                }
-            }
-        }
-
-        return {primitive_collisions, object_collision};
-    }
-
     StepMetrics bvh_mid_narrow_phase(const Object& a, const Object& b){
         StepMetrics m = mid_phase_cd(a, 0, b, 0);
         m.object_collisions = m.object_collisions ? 1 : 0;
@@ -222,7 +220,8 @@ namespace {
     }
 }
 
-StepMetrics step_simulation(const std::vector<Object>& objects, bool use_bvh){
+StepMetrics step_simulation(const std::vector<Object>& objects, bool use_bvh, bool draw_bvh){
+    s_draw_bvh = draw_bvh;
     StepMetrics metrics;
     bool object_collision = false;
     for (size_t i = 0; i < objects.size(); i++) {

@@ -85,14 +85,15 @@ struct Object{
 };
 
 struct StepMetrics {
-    size_t primitive_collisions = 0, object_collisions = 0;
+    size_t primitive_collisions = 0, object_collisions = 0, primitive_tests = 0;
 
     void sum(StepMetrics metrics){
+        this->primitive_tests += metrics.primitive_tests;
         this->primitive_collisions += metrics.primitive_collisions;
         this->object_collisions += metrics.object_collisions;
     }
 };
 
-StepMetrics step_simulation(const std::vector<Object>& objects, bool use_bvh);
+StepMetrics step_simulation(const std::vector<Object>& objects, bool use_bvh, bool draw_bvh);
 
 #endif
