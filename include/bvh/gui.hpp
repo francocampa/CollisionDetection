@@ -24,13 +24,15 @@ inline const Rectangle rec_add_suzanne = Rectangle(220,30,200,20);
 inline const Rectangle rec_add_dragon = Rectangle(430,30,200,20);
 inline const Rectangle rec_use_bvh = Rectangle(10,90,20,20);
 inline const Rectangle rec_draw_bvh = Rectangle(10,120,20,20);
+inline const Rectangle rec_tested_bvh = Rectangle(100,120,20,20);
 inline const Rectangle rec_render = Rectangle(10,150,20,20);
 
-inline GUI_EVENT draw_gui(bool& use_bvh, bool& draw_all_bvh, bool& render){
+inline GUI_EVENT draw_gui(bool& use_bvh, bool& draw_all_bvh, bool& draw_tested_bvh, bool& render){
     static SELECTED_FIELD editing;
     
     GuiCheckBox(rec_use_bvh, "Use bvh", &use_bvh);
     GuiCheckBox(rec_draw_bvh, "Draw bvh", &draw_all_bvh);
+    GuiCheckBox(rec_tested_bvh, "Draw tested leafs", &draw_tested_bvh);
     GuiCheckBox(rec_render, "Render", &render);
 
     if (GuiButton(rec_add_sphere, "Add a sphere")) {

@@ -129,8 +129,10 @@ int main(void)
     camera.projection = CAMERA_PERSPECTIVE;
 
     bool render = true;
+    bool render_ui = true;
     bool use_bvh = false;
     bool draw_all_bvh = false;
+    bool draw_tested_bvh = false;
 
     DisableCursor();
 
@@ -197,6 +199,10 @@ int main(void)
             drag = Dragging();
         }
 
+        if (IsKeyPressed(KEY_H)){
+            render_ui = !render_ui;
+        }
+
         BeginDrawing();
             ClearBackground(BLACK);
             BeginMode3D(camera);
@@ -214,12 +220,13 @@ int main(void)
                             draw_bvh(obj.bvh);
                     }
                 }
-                StepMetrics metrics = step_simulation(objects, use_bvh, draw_all_bvh);
+                StepMetrics metrics = step_simulation(objects, use_bvh, draw_tested_bvh);
             EndMode3D();
             DrawFPS(10, 10);
-            GUI_EVENT event = draw_gui(use_bvh, draw_all_bvh, render);
-
-            handle_event(event, objects, shader);
+            if(render_ui){
+                GUI_EVENT event = draw_gui(use_bvh, draw_all_bvh, draw_tested_bvh, render);
+                handle_event(event, objects, shader);
+            }
             draw_metrics(metrics);
         EndDrawing();
 

@@ -2,6 +2,7 @@
 #include "glm/ext/vector_float3.hpp"
 #include "raylib.h"
 #include "raymath.h"
+#include <cstdio>
 #include <vector>
 #include "collision_detection.hpp"
 
@@ -149,6 +150,7 @@ int main(void)
     float max_vel = 0.1f;
     bool use_grid = false;
     bool render = true;
+    bool render_ui = true;
 
     Vector3 box(box_size, box_size, box_size);
 
@@ -196,6 +198,11 @@ int main(void)
             free_cam = !free_cam;
         }
 
+        if (IsKeyPressed(KEY_H)){
+            render_ui = !render_ui;
+        }
+
+
         BeginDrawing();
             ClearBackground(BLACK);
 
@@ -226,7 +233,8 @@ int main(void)
             }
 
             DrawFPS(10, 10);
-            draw_gui(box_size, no_spheres, use_grid, render);
+            if(render_ui)
+                draw_gui(box_size, no_spheres, use_grid, render);
         EndDrawing();
     }
 
