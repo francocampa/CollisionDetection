@@ -1,5 +1,6 @@
 #include "collision_detection.hpp"
 #include "raylib.h"
+#include <algorithm>
 #include <cstddef>
 #include <stdbool.h>
 
@@ -44,8 +45,13 @@ namespace {
         const V normalA = glm::cross(EA[0], EA[1]);
         const V normalB = glm::cross(EB[0], EB[1]);
 
+        constexpr float DEGENERATE_RATIO = 1e-4f;
         const auto degenerate = [&](const V& n, const std::array<V, 3>& E) -> bool {
-            return glm::dot(n, n) <= EPS * EPS * glm::dot(E[0], E[0]) * glm::dot(E[1], E[1]);
+            const float max_e2 = std::max({glm::dot(E[0], E[0]),
+                                           glm::dot(E[1], E[1]),
+                                           glm::dot(E[2], E[2])});
+            const float limit = DEGENERATE_RATIO * max_e2;
+            return glm::dot(n, n) <= limit * limit;
         };
         if (degenerate(normalA, EA) || degenerate(normalB, EB))
             return false;
