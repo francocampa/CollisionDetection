@@ -158,6 +158,7 @@ namespace {
         size_t primitive_collisions = 0;
         size_t primitive_tests = 0;
         bool object_collision = false;
+        
         const Triangle* a_triangles = a.get_triangles();
         const Triangle* b_triangles = b.get_triangles();
 

@@ -15,6 +15,8 @@
 
 #include "gui.hpp"
 
+constexpr unsigned int FONT_SIZE = 18;
+
 Color gen_random_color(){
     return Color(GetRandomValue(0, 255), GetRandomValue(0, 255), GetRandomValue(0, 255), 1);
 }
@@ -63,9 +65,9 @@ struct Dragging{
 };
 
 void draw_metrics(StepMetrics metrics){
-    DrawText(TextFormat("Objetos intersecando   : %d", metrics.object_collisions), 10, GetScreenHeight() - 90, 24, WHITE);
-    DrawText(TextFormat("Primitivas testeadas: %d", metrics.primitive_tests), 10, GetScreenHeight() - 60, 24, WHITE);
-    DrawText(TextFormat("Primitivas intersecando: %d", metrics.primitive_collisions), 10, GetScreenHeight() - 30, 24, WHITE);
+    DrawText(TextFormat("Objetos intersecando  : %d", metrics.object_collisions), 10, GetScreenHeight() - 75, FONT_SIZE, WHITE);
+    DrawText(TextFormat("Primitivas testeadas    : %d", metrics.primitive_tests), 10, GetScreenHeight() - 50, FONT_SIZE, WHITE);
+    DrawText(TextFormat("Primitivas intersecando: %d", metrics.primitive_collisions), 10, GetScreenHeight() - 25, FONT_SIZE, WHITE);
 }
 
 void init_objects(auto& objects, const Shader& shader){
@@ -184,6 +186,8 @@ int main(void)
 				drag.up = glm::normalize(glm::cross(drag.right, drag.front));
             }
         }else if(IsMouseButtonDown(MOUSE_BUTTON_LEFT) && drag.obj){
+            DrawText(TextFormat("Número de triángulos: %d", drag.obj->get_triangle_count()), 10, GetScreenHeight() - 100, FONT_SIZE, WHITE);
+
             Vector2 mouse_move = GetMouseDelta();
             if (mouse_move.x != 0 || mouse_move.y != 0) {
                 drag.obj->pos += (mouse_move.x * drag.right - mouse_move.y * drag.up) / 20.0f; // El 20 salió del corazón

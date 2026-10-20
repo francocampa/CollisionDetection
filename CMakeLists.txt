@@ -12,6 +12,10 @@ add_subdirectory(lib/raylib)
 add_subdirectory(lib/glm)
 add_subdirectory(lib/bvh)
 
+######################
+# BROAD PHASE TARGET #
+######################
+
 set(BROAD_PHASE_PROJECT broad_phase)
 set(BROAD_PHASE_SOURCE_FILES 
     src/broad_phase/main.cpp
@@ -33,6 +37,10 @@ target_link_libraries(${BROAD_PHASE_PROJECT} PRIVATE
     glm::glm
 )
 
+#######################
+# NARROW PHASE TARGET #
+#######################
+
 set(MID_NARROW_PHASE_PROJECT mid_narrow_phase)
 set(MID_NARROW_PHASE_SOURCE_FILES 
     src/bvh/main.cpp
@@ -52,4 +60,24 @@ target_link_libraries(${MID_NARROW_PHASE_PROJECT} PRIVATE
     raylib 
     glm::glm
     bvh
+)
+
+#####################
+# RAYCASTING TARGET #
+#####################
+
+set(RAYCASTING_PROJECT raycasting)
+set(RAYCASTING_SOURCE_FILES 
+    src/raycasting/main.cpp            
+)
+
+add_executable(${RAYCASTING_PROJECT} ${RAYCASTING_SOURCE_FILES})
+
+target_include_directories(${RAYCASTING_PROJECT} PRIVATE 
+    lib/raylib/src
+    lib/raygui/src
+)
+
+target_link_libraries(${RAYCASTING_PROJECT} PRIVATE 
+    raylib 
 )
