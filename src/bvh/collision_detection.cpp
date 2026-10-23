@@ -154,11 +154,12 @@ namespace {
         return 2.0f * (dx * dy + dy * dz + dz * dx);
     }
 
-    StepMetrics narrow_phase_cd(const Object& a, const auto& a_node, const Object& b, const auto& b_node){
+    StepMetrics narrow_phase_cd(const Object& a, const auto& a_node,
+                                const Object& b, const auto& b_node){
         size_t primitive_collisions = 0;
         size_t primitive_tests = 0;
         bool object_collision = false;
-        
+
         const Triangle* a_triangles = a.get_triangles();
         const Triangle* b_triangles = b.get_triangles();
 
@@ -177,9 +178,7 @@ namespace {
                     primitive_collisions++;
                     draw_triangle(a_t, a.pos);
                     draw_triangle(b_t, b.pos);
-                    if (!object_collision){
-                        object_collision = true;
-                    }                    
+                    object_collision = true;          
                 }
             }
         }

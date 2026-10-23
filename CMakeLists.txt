@@ -76,8 +76,11 @@ add_executable(${RAYCASTING_PROJECT} ${RAYCASTING_SOURCE_FILES})
 target_include_directories(${RAYCASTING_PROJECT} PRIVATE 
     lib/raylib/src
     lib/raygui/src
+    lib/stb_perlin
+    lib/rlights
 )
 
 target_link_libraries(${RAYCASTING_PROJECT} PRIVATE 
     raylib 
+    glm::glm
 )
