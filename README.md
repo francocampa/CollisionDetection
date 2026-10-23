@@ -47,3 +47,4 @@ Implementa un pequeño sistema de movimiento para un personaje cuyas colisiones 
 
 El movimiento del personaje es con las **flechas** y salta con la **z** (si spamean el salto cae lento pero así es la vida)
 
+No dio tiempo de implementar una cámara que siga al jugador así que se lo mira desde la distancia como papá orgulloso. 
