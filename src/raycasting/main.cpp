@@ -223,7 +223,7 @@ void render_player(const Player& player){
         player.pos.z
     );;
     DrawSphere(sphere_pos, player_radius, RED);
-    DrawSphere(Vector3Add(sphere_pos, Vector3(0.5f ,1.0f, 0.0f)) , 0.3, BLUE);
+    DrawSphere(Vector3Add(sphere_pos, Vector3(0.0f ,1.0f, -0.5f)) , 0.3, BLUE);
 }
 
 int main(void)

@@ -21,7 +21,7 @@ class HashGrid {
         unsigned int no_objects;
         unsigned int table_size;
 
-        const static int K = 3;
+        const static int K = 8;
 
         size_t hash_pos(glm::vec3 pos);
         size_t hash_indices(glm::ivec3 indices);
