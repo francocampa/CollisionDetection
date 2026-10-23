@@ -71,10 +71,11 @@ Shader load_shaders(){
     shader.locs[SHADER_LOC_MATRIX_MODEL] = GetShaderLocationAttrib(shader, "instanceTransform");
     // Set shader value: ambient light level
     int ambientLoc = GetShaderLocation(shader, "ambient");
-    SetShaderValue(shader, ambientLoc, (float[4]){ 0.2f, 0.2f, 0.2f, 1.0f }, SHADER_UNIFORM_VEC4);
+    const float ambient[4] = { 0.2f, 0.2f, 0.2f, 1.0f };
+    SetShaderValue(shader, ambientLoc, ambient, SHADER_UNIFORM_VEC4);
 
     // Create one light
-    CreateLight(LIGHT_DIRECTIONAL, (Vector3){ 15.0f, 15.0f, 15.0f }, Vector3Zero(), WHITE, shader);
+    CreateLight(LIGHT_DIRECTIONAL, Vector3{ 15.0f, 15.0f, 15.0f }, Vector3Zero(), WHITE, shader);
 
     return shader;
 }
@@ -138,9 +139,9 @@ int main(void)
     bool showMessageBox = false;
 
     Camera3D camera;
-    camera.position = (Vector3){ 5.0f, 3.0f, 5.0f }; 
-    camera.target = (Vector3){ 0.0f, 0.0f, 0.0f };
-    camera.up = (Vector3){ 0.0f, 1.0f, 0.0f };          
+    camera.position = Vector3{ 5.0f, 3.0f, 5.0f }; 
+    camera.target = Vector3{ 0.0f, 0.0f, 0.0f };
+    camera.up = Vector3{ 0.0f, 1.0f, 0.0f };          
     camera.fovy = 45.0f;       
     camera.projection = CAMERA_PERSPECTIVE;
 
