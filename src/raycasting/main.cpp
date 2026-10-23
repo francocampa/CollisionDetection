@@ -17,7 +17,7 @@ const Matrix identity_matrix = MatrixMultiply(
                                 MatrixTranslate(0, 0, 0));
 const auto down_dir = glm::vec3(0.0f, -1.0f, 0.0f);
 const auto max_vel = glm::vec3(10.0f, 1000.0f, 10.0f);
-constexpr glm::vec3 gravity(0.0f, -10.0f, 0.0f);
+constexpr glm::vec3 gravity(0.0f, -100.0f, 0.0f);
 
 Shader load_shaders(){
     // Load lighting shader
@@ -178,25 +178,26 @@ float raycast_to_floor(glm::vec3 pos, glm::vec3 dir, const Mesh& terrain){
 void step_player_physics(Player& player, const Mesh& terrain, float delta){
     glm::vec3 move_vel(0);
     float horizontal_vel = 40.0f;
-    float jump_vel = 10.0f;
-    if(IsKeyDown(KEY_LEFT)){
-        move_vel.x -= horizontal_vel;
-    }
-    if(IsKeyDown(KEY_RIGHT)){
-        move_vel.x += horizontal_vel;
-    }
-    if(IsKeyDown(KEY_UP)){
-        move_vel.z -= horizontal_vel;
-    }
-    if(IsKeyDown(KEY_DOWN)){
-        move_vel.z += horizontal_vel;
-    }
+    float jump_vel = 20.0f;
 
-    if(IsKeyPressed(KEY_Z)){
+    static bool jumping = false;
+    bool stop_jump = false;
+
+    if (IsKeyDown(KEY_LEFT))  move_vel.x -= horizontal_vel;
+    if (IsKeyDown(KEY_RIGHT)) move_vel.x += horizontal_vel;
+    if (IsKeyDown(KEY_UP))    move_vel.z -= horizontal_vel;
+    if (IsKeyDown(KEY_DOWN))  move_vel.z += horizontal_vel;
+    
+    
+    if (IsKeyDown(KEY_Z) && !jumping){
         move_vel.y = jump_vel;
+        jumping = true;
+    }else if (IsKeyReleased(KEY_Z) && jumping){
+        stop_jump = true;
     }
+    
 
-    player.vel = glm::vec3(move_vel.x, player.vel.y + move_vel.y, move_vel.z);
+    player.vel = glm::vec3(move_vel.x, stop_jump ? 0.0f : player.vel.y + move_vel.y, move_vel.z);
     
     player.vel += gravity * delta;
     player.vel = glm::clamp(player.vel, -max_vel, max_vel);
@@ -206,6 +207,7 @@ void step_player_physics(Player& player, const Mesh& terrain, float delta){
     float floor_t = raycast_to_floor(player.pos, down_dir, terrain);
     if (floor_t <= 0.0f) {
         player.pos.y = player.pos.y + (down_dir * floor_t).y;
+        jumping = false;
         if (player.vel.y < 0.0f) {
             player.vel.y = 0.0f;
         }
