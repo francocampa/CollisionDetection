@@ -2,6 +2,7 @@
 #include "raylib.h"
 #include "raymath.h"
 #include <cstdio>
+#include <cstring>
 #include <vector>
 
 #define RLIGHTS_IMPLEMENTATION
@@ -142,9 +143,14 @@ Mesh generate_terrain() {
     mesh.vertexCount = static_cast<int>(vertices.size() / 3);
     mesh.triangleCount = static_cast<int>(indices.size() / 3);
 
-    mesh.vertices = vertices.data();
-    mesh.normals = normals.data();
-    mesh.indices = indices.data();
+    // Copy to raylib-owned memory: the vectors die when this function returns,
+    // and GetRayCollisionMesh reads vertices/indices from the CPU side.
+    mesh.vertices = static_cast<float*>(MemAlloc(vertices.size() * sizeof(float)));
+    mesh.normals = static_cast<float*>(MemAlloc(normals.size() * sizeof(float)));
+    mesh.indices = static_cast<unsigned short*>(MemAlloc(indices.size() * sizeof(unsigned short)));
+    memcpy(mesh.vertices, vertices.data(), vertices.size() * sizeof(float));
+    memcpy(mesh.normals, normals.data(), normals.size() * sizeof(float));
+    memcpy(mesh.indices, indices.data(), indices.size() * sizeof(unsigned short));
 
     UploadMesh(&mesh, false);
 
@@ -192,16 +198,18 @@ void step_player_physics(Player& player, const Mesh& terrain, float delta){
 
     player.vel = glm::vec3(move_vel.x, player.vel.y + move_vel.y, move_vel.z);
     
-    float floor_t = raycast_to_floor(player.pos, down_dir, terrain);
-    if(floor_t > EPSILON){
-        player.vel += gravity * delta;
-        printf("Floor_t: %f, vel y: %f\n",floor_t, player.vel.y);
-    }else if (floor_t < EPSILON) {
-        player.pos.y = player.pos.y + (down_dir * floor_t).y;
-    }
+    player.vel += gravity * delta;
     player.vel = glm::clamp(player.vel, -max_vel, max_vel);
 
     player.pos += player.vel * delta;
+
+    float floor_t = raycast_to_floor(player.pos, down_dir, terrain);
+    if (floor_t <= 0.0f) {
+        player.pos.y = player.pos.y + (down_dir * floor_t).y;
+        if (player.vel.y < 0.0f) {
+            player.vel.y = 0.0f;
+        }
+    }
 }
 
 const float player_radius = 1.0f;
